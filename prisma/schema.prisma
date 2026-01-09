@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Calculation {
+  id                String   @id @default(cuid())
+  userId            String?
+  user              User?    @relation(fields: [userId], references: [id])
+  
+  // Mode
+  mode              String   // "forward" | "reverse"
+  
+  // Forward calculation inputs
+  accountSize       Float?
+  riskPercentage    Float?
+  entryPrice        Float
+  stopLossPrice     Float?
+  targetPrice       Float?
+  tradeType         String   // "long" | "short"
+  excessLiquidity   Float?
+  
+  // Reverse calculation inputs
+  availableCash     Float?
+  cashUsagePercent  Float?
+  
+  // Calculated results
+  maxLoss           Float?
+  riskPerShare      Float?
+  maxShares         Float?
+  tradeValue        Float?
+  initialMarginCost Float?
+  rMultiple         Float?
+  potentialProfit   Float?
+  canAfford         Boolean?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String?
+  calculations Calculation[]
+  journalEntries JournalEntry[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model JournalEntry {
+  id                String   @id @default(cuid())
+  userId            String?
+  user              User?    @relation(fields: [userId], references: [id])
+  
+  // Trade identification
+  ticker            String
+  setupType         String   // "Breakout" | "Pullback" | "Reversal" | "Gap Fill" | "Trend Following" | "Other"
+  direction         String   // "long" | "short"
+  status            String   @default("order") // "order" | "open" | "closed"
+  
+  // Trade details
+  entryPrice        Float
+  stopLossPrice     Float?
+  targetPrice       Float?
+  positionSize      Float    // Number of shares
+  riskAmount        Float?   // Maximum loss amount
+  tradeValue        Float?   // Total trade value
+  rMultiple         Float?   // Risk:Reward ratio
+  potentialProfit   Float?   // Potential profit if target is hit
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+  @@index([ticker])
+  @@index([createdAt])
+}
