@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, ChangeEvent } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -176,7 +176,7 @@ function App() {
                     type="number"
                     placeholder="10000"
                     value={accountSize}
-                    onChange={(e) => setAccountSize(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setAccountSize(e.target.value)}
                   />
                 </div>
 
@@ -187,7 +187,7 @@ function App() {
                     type="number"
                     placeholder="5"
                     value={riskPercentage}
-                    onChange={(e) => setRiskPercentage(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setRiskPercentage(e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground">
                     Recommended: Never risk more than 5%
@@ -202,7 +202,7 @@ function App() {
                     step="0.01"
                     placeholder="85.00"
                     value={entryPrice}
-                    onChange={(e) => setEntryPrice(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setEntryPrice(e.target.value)}
                   />
                 </div>
 
@@ -214,7 +214,7 @@ function App() {
                     step="0.01"
                     placeholder="80.00"
                     value={stopLossPrice}
-                    onChange={(e) => setStopLossPrice(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setStopLossPrice(e.target.value)}
                   />
                 </div>
 
@@ -223,7 +223,7 @@ function App() {
                   <Select
                     id="tradeType"
                     value={tradeType}
-                    onChange={(e) => setTradeType(e.target.value as TradeType)}
+                    onChange={(e: ChangeEvent<HTMLSelectElement>) => setTradeType(e.target.value as TradeType)}
                   >
                     <option value="long">Long (50% margin)</option>
                     <option value="short">Short (100% margin)</option>
@@ -237,7 +237,7 @@ function App() {
                     type="number"
                     placeholder="1600"
                     value={excessLiquidity}
-                    onChange={(e) => setExcessLiquidity(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setExcessLiquidity(e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground">
                     Free cash available in your account
@@ -320,7 +320,7 @@ function App() {
                     type="number"
                     placeholder="1600"
                     value={availableCash}
-                    onChange={(e) => setAvailableCash(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setAvailableCash(e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground">
                     How much cash do you have available?
@@ -334,7 +334,7 @@ function App() {
                     type="number"
                     placeholder="50"
                     value={cashUsagePercentage}
-                    onChange={(e) => setCashUsagePercentage(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setCashUsagePercentage(e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground">
                     Percentage of cash to use (recommended: 50% to avoid margin calls)
@@ -349,7 +349,7 @@ function App() {
                     step="0.01"
                     placeholder="85.00"
                     value={reverseEntryPrice}
-                    onChange={(e) => setReverseEntryPrice(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setReverseEntryPrice(e.target.value)}
                   />
                 </div>
 
@@ -358,7 +358,7 @@ function App() {
                   <Select
                     id="reverseTradeType"
                     value={reverseTradeType}
-                    onChange={(e) => setReverseTradeType(e.target.value as TradeType)}
+                    onChange={(e: ChangeEvent<HTMLSelectElement>) => setReverseTradeType(e.target.value as TradeType)}
                   >
                     <option value="long">Long (50% margin)</option>
                     <option value="short">Short (100% margin)</option>
@@ -373,7 +373,7 @@ function App() {
                     step="0.01"
                     placeholder="80.00"
                     value={reverseStopLossPrice}
-                    onChange={(e) => setReverseStopLossPrice(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setReverseStopLossPrice(e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground">
                     Enter to check if the risk is acceptable
@@ -387,7 +387,7 @@ function App() {
                     type="number"
                     placeholder="10000"
                     value={reverseAccountSize}
-                    onChange={(e) => setReverseAccountSize(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setReverseAccountSize(e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground">
                     Enter to check risk percentage
