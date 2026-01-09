@@ -92,7 +92,7 @@ export function TradeChecklistModal({
       label: 'Risk:Reward ratio is at least 1:2',
       explanation: 'Mathematical survival. You can be wrong 60% of the time and still make money if you follow this rule.',
       autoCheckable: true,
-      autoChecked: targetPrice && result?.rMultiple !== undefined && result.rMultiple >= MIN_R_MULTIPLE,
+      autoChecked: targetPrice !== null && targetPrice > 0 && result?.rMultiple !== undefined && result.rMultiple >= MIN_R_MULTIPLE,
     },
     {
       id: 'stop-loss-logic',

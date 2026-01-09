@@ -59,8 +59,8 @@ export function EditTradeModal({
         ticker,
         setupType: setupType as SetupType,
         entryPrice: parseFloat(entryPrice),
-        stopLossPrice: stopLossPrice ? parseFloat(stopLossPrice) : null,
-        targetPrice: targetPrice ? parseFloat(targetPrice) : null,
+        stopLossPrice: stopLossPrice ? parseFloat(stopLossPrice) : undefined,
+        targetPrice: targetPrice ? parseFloat(targetPrice) : undefined,
         direction,
         status,
       })
