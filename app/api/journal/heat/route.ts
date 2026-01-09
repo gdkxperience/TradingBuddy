@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
 
     // Calculate total risk
     const totalRisk = openPositions.reduce(
-      (sum, entry) => sum + (entry.riskAmount || 0),
+      (sum: number, entry) => sum + (entry.riskAmount || 0),
       0
     )
 
