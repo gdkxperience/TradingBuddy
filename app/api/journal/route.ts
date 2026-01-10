@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Prisma } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,7 +30,8 @@ export async function GET(request: NextRequest) {
     })
 
     // Transform to match frontend JournalEntry type
-    const transformedEntries = entries.map((entry: Prisma.JournalEntryGetPayload<{}>) => ({
+    type JournalEntryType = typeof entries[number]
+    const transformedEntries = entries.map((entry: JournalEntryType) => ({
       id: entry.id,
       timestamp: entry.createdAt.toISOString(),
       ticker: entry.ticker,
