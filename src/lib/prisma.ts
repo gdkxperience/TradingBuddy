@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
-import { Pool } from 'pg'
+import pg from 'pg'
+
+const { Pool } = pg
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
@@ -28,7 +30,13 @@ function createPrismaClient(): PrismaClient {
     throw new Error('DATABASE_URL or DIRECT_DATABASE_URL environment variable is required')
   }
   
-  const pool = new Pool({ connectionString })
+  // Parse the connection string to extract components
+  const pool = new Pool({ 
+    connectionString,
+    // For local development, allow connecting without SSL
+    ssl: false,
+  })
+  
   const adapter = new PrismaPg(pool)
   
   return new PrismaClient({

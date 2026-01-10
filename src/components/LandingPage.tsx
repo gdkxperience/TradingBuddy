@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { AuthModal } from './AuthModal'
 import { 
@@ -23,7 +25,7 @@ import {
 import { cn } from '@/lib/utils'
 
 interface LandingPageProps {
-  onGetStarted: () => void
+  onGetStarted?: () => void
 }
 
 export function LandingPage({ onGetStarted }: LandingPageProps) {
@@ -31,6 +33,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const { data: session, status } = useSession()
   const [isMounted, setIsMounted] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     setIsMounted(true)
@@ -38,6 +41,14 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
 
   // Only check session after mount to avoid hydration mismatch
   const isAuthenticated = isMounted && status !== 'loading' && !!session
+
+  const handleGetStarted = () => {
+    if (onGetStarted) {
+      onGetStarted()
+    } else {
+      router.push('/app')
+    }
+  }
 
   const features = [
     {
@@ -141,7 +152,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                 <Button 
                   size="lg" 
                   className="text-lg px-8 py-6 h-auto group"
-                  onClick={onGetStarted}
+                  onClick={handleGetStarted}
                 >
                   Start Calculating Now
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -351,7 +362,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             size="lg" 
             variant="secondary"
             className="text-lg px-8 py-6 h-auto group"
-            onClick={onGetStarted}
+            onClick={handleGetStarted}
           >
             Get Started Free
             <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -367,6 +378,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         open={showAuthModal} 
         onOpenChange={setShowAuthModal}
         defaultTab="register"
+        redirectTo="/app"
       />
 
       {/* Footer */}

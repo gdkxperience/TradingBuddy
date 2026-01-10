@@ -16,8 +16,8 @@
     "db:migrate:prod": "dotenv -e .env.production -- prisma migrate deploy",
     "db:push:prod": "dotenv -e .env.production -- prisma db push",
     "db:studio:prod": "dotenv -e .env.production -- prisma studio",
-    "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down"
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",

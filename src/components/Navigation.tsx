@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { Calculator, BarChart3, BookOpen, Menu, X, AlertTriangle, Settings, LayoutDashboard, LogIn } from 'lucide-react'
+import Link from 'next/link'
+import { Calculator, BarChart3, BookOpen, Menu, X, AlertTriangle, Settings, LayoutDashboard, LogIn, Home } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { UserMenu } from './UserMenu'
 import { AuthModal } from './AuthModal'
@@ -63,9 +64,9 @@ export function Navigation({ currentView, onViewChange, totalHeat }: NavigationP
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center justify-between p-4">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <Link href="/" className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity">
             Trading Buddy
-          </h1>
+          </Link>
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -120,12 +121,14 @@ export function Navigation({ currentView, onViewChange, totalHeat }: NavigationP
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex fixed left-0 top-0 h-full w-64 flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-40 overflow-visible">
         <div className="p-6 border-b border-slate-200 dark:border-slate-800">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Trading Buddy
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Position Size Calculator
-          </p>
+          <Link href="/" className="block hover:opacity-80 transition-opacity">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Trading Buddy
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              Position Size Calculator
+            </p>
+          </Link>
         </div>
         
         <nav className="flex-1 p-4 space-y-2">

@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react'
 import { signIn } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,9 +14,10 @@ interface AuthModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   defaultTab?: 'login' | 'register'
+  redirectTo?: string
 }
 
-export function AuthModal({ open, onOpenChange, defaultTab = 'login' }: AuthModalProps) {
+export function AuthModal({ open, onOpenChange, defaultTab = 'login', redirectTo = '/app' }: AuthModalProps) {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>(defaultTab)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -24,6 +26,7 @@ export function AuthModal({ open, onOpenChange, defaultTab = 'login' }: AuthModa
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [passwordStrength, setPasswordStrength] = useState(0)
+  const router = useRouter()
 
   const validatePassword = (pwd: string) => {
     let strength = 0
@@ -73,9 +76,10 @@ export function AuthModal({ open, onOpenChange, defaultTab = 'login' }: AuthModa
         return
       }
 
-      // Success - close modal and refresh
+      // Success - close modal and redirect to app
       onOpenChange(false)
-      window.location.reload()
+      router.push(redirectTo)
+      router.refresh()
     } catch (err) {
       setError('An unexpected error occurred')
       setIsLoading(false)
@@ -100,9 +104,10 @@ export function AuthModal({ open, onOpenChange, defaultTab = 'login' }: AuthModa
         return
       }
 
-      // Success - close modal and refresh
+      // Success - close modal and redirect to app
       onOpenChange(false)
-      window.location.reload()
+      router.push(redirectTo)
+      router.refresh()
     } catch (err) {
       setError('An unexpected error occurred')
       setIsLoading(false)
