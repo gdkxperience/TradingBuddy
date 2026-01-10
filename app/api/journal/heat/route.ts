@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Prisma } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
 
@@ -8,8 +7,6 @@ async function getPrisma() {
   const { prisma } = await import('@/lib/prisma')
   return prisma
 }
-
-type JournalEntry = Prisma.JournalEntryGetPayload<{}>
 
 // GET - Calculate total heat for account
 export async function GET(request: NextRequest) {
@@ -38,7 +35,7 @@ export async function GET(request: NextRequest) {
 
     // Calculate total risk
     const totalRisk = openPositions.reduce(
-      (sum: number, entry: JournalEntry) => sum + (entry.riskAmount || 0),
+      (sum: number, entry: { riskAmount: number | null }) => sum + (entry.riskAmount || 0),
       0
     )
 
