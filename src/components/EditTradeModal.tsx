@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, ChangeEvent } from 'react'
+import { useState, useEffect, ChangeEvent, useMemo } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -8,6 +8,7 @@ import { Select } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { JournalEntry, SetupType, TradeType, TradeStatus } from '@/types'
 import { AlertCircle, Info } from 'lucide-react'
+import { calculateRMultiple } from '@/lib/calculations'
 
 interface EditTradeModalProps {
   open: boolean
@@ -73,6 +74,35 @@ export function EditTradeModal({
     }
   }
 
+  // Calculate R/R and potential profit in real-time as user edits
+  const recalculatedValues = useMemo(() => {
+    if (!entry) {
+      return { rMultiple: null, potentialProfit: null, isGoodBet: false }
+    }
+
+    const entryPriceNum = parseFloat(entryPrice) || 0
+    const stopLoss = stopLossPrice ? parseFloat(stopLossPrice) : null
+    const target = targetPrice ? parseFloat(targetPrice) : null
+    
+    if (!entryPriceNum || !stopLoss || !target || entry.positionSize <= 0) {
+      return { rMultiple: null, potentialProfit: null, isGoodBet: false }
+    }
+
+    const result = calculateRMultiple(entryPriceNum, stopLoss, target, direction)
+    if (!result) {
+      return { rMultiple: null, potentialProfit: null, isGoodBet: false }
+    }
+
+    // Calculate total potential profit (reward per share * position size)
+    const totalPotentialProfit = result.potentialProfit * entry.positionSize
+
+    return {
+      rMultiple: result.rMultiple,
+      potentialProfit: totalPotentialProfit,
+      isGoodBet: result.isGoodBet,
+    }
+  }, [entryPrice, stopLossPrice, targetPrice, direction, entry])
+
   const canSave = ticker.length > 0 && setupType !== '' && entryPrice !== ''
 
   if (!entry) return null
@@ -98,11 +128,39 @@ export function EditTradeModal({
                 <li>Position Size: {Math.floor(entry.positionSize)} shares</li>
                 <li>Risk Amount: {entry.riskAmount ? `€${entry.riskAmount.toFixed(2)}` : 'Unknown'}</li>
                 {entry.tradeValue && <li>Trade Value: €{entry.tradeValue.toFixed(2)}</li>}
-                {entry.rMultiple && <li>R-Multiple: 1:{entry.rMultiple.toFixed(2)}</li>}
-                {entry.potentialProfit && <li>Potential Profit: €{entry.potentialProfit.toFixed(2)}</li>}
+                <li className="flex items-center gap-2">
+                  <span>R-Multiple:</span>
+                  {recalculatedValues.rMultiple !== null ? (
+                    <span className={recalculatedValues.isGoodBet ? 'text-green-600 dark:text-green-400 font-semibold' : 'text-red-600 dark:text-red-400 font-semibold'}>
+                      1:{recalculatedValues.rMultiple.toFixed(2)} 
+                      {entry.rMultiple && Math.abs(recalculatedValues.rMultiple - entry.rMultiple) > 0.01 && (
+                        <span className="text-xs ml-1 text-blue-600 dark:text-blue-400">(will update)</span>
+                      )}
+                    </span>
+                  ) : (
+                    <span className="text-muted-foreground">
+                      {entry.rMultiple ? `1:${entry.rMultiple.toFixed(2)}` : 'N/A'}
+                    </span>
+                  )}
+                </li>
+                <li className="flex items-center gap-2">
+                  <span>Potential Profit:</span>
+                  {recalculatedValues.potentialProfit !== null ? (
+                    <span className="font-semibold text-green-600 dark:text-green-400">
+                      €{recalculatedValues.potentialProfit.toFixed(2)}
+                      {entry.potentialProfit && Math.abs(recalculatedValues.potentialProfit - entry.potentialProfit) > 0.01 && (
+                        <span className="text-xs ml-1 text-blue-600 dark:text-blue-400">(will update)</span>
+                      )}
+                    </span>
+                  ) : (
+                    <span className="text-muted-foreground">
+                      {entry.potentialProfit ? `€${entry.potentialProfit.toFixed(2)}` : 'N/A'}
+                    </span>
+                  )}
+                </li>
               </ul>
               <p className="mt-2 text-xs italic">
-                Note: Changing prices may affect these calculations. Recalculate the position if needed.
+                Note: R/R ratio and potential profit will be recalculated automatically when you save changes to prices.
               </p>
             </div>
           </div>

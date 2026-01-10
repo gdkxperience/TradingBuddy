@@ -2,6 +2,7 @@ import { ForwardCalculationInputs, CalculationResult } from '@/types'
 import { calculateForward } from '@/lib/calculations'
 import { ForwardCalculationForm } from './ForwardCalculationForm'
 import { CalculationResults } from './CalculationResults'
+import { ScenarioSandbox } from './ScenarioSandbox'
 
 interface ForwardCalculationProps {
   inputs: ForwardCalculationInputs
@@ -25,19 +26,31 @@ export function ForwardCalculation({ inputs, onInputChange, onSaveToJournal }: F
   const stopLossPrice = parseFloat(inputs.stopLossPrice) || null
 
   return (
-    <div className="grid md:grid-cols-2 gap-6">
-      <ForwardCalculationForm inputs={inputs} onInputChange={onInputChange} />
-      <CalculationResults
-        result={result}
-        title="Calculation Results"
-        description="Position size and affordability analysis"
-        emptyMessage="Fill in all fields to see calculations"
-        variant="forward"
-        onSaveToJournal={handleSaveClick}
-        entryPrice={entryPrice}
-        stopLossPrice={stopLossPrice}
-        direction={inputs.tradeType}
-      />
+    <div className="space-y-6">
+      <div className="grid md:grid-cols-2 gap-6">
+        <ForwardCalculationForm inputs={inputs} onInputChange={onInputChange} />
+        <CalculationResults
+          result={result}
+          title="Calculation Results"
+          description="Position size and affordability analysis"
+          emptyMessage="Fill in all fields to see calculations"
+          variant="forward"
+          onSaveToJournal={handleSaveClick}
+          entryPrice={entryPrice}
+          stopLossPrice={stopLossPrice}
+          direction={inputs.tradeType}
+        />
+      </div>
+      
+      {result && result.maxShares > 0 && entryPrice > 0 && (
+        <ScenarioSandbox
+          entryPrice={entryPrice}
+          stopLossPrice={stopLossPrice}
+          positionSize={result.maxShares}
+          direction={inputs.tradeType}
+          tradeValue={result.tradeValue}
+        />
+      )}
     </div>
   )
 }

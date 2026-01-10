@@ -14,6 +14,7 @@ dist-ssr
 .next
 .env
 .env.local
+.env.production
 .env*.local
 prisma/dev.db
 prisma/dev.db-journal

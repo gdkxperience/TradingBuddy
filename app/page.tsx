@@ -17,9 +17,21 @@ import { HeatWarningModal } from '@/components/HeatWarningModal'
 import { calculateTotalHeat } from '@/components/AccountHeatDashboard'
 import { CalculationResult } from '@/types'
 import { isChecklistGatekeeperEnabled } from '@/lib/settings'
+import { LandingPage } from '@/components/LandingPage'
 
 export default function Home() {
+  const [showLanding, setShowLanding] = useState(true) // Start with true, will be updated on client
+  const [isClient, setIsClient] = useState(false)
   const [currentView, setCurrentView] = useState<ViewType>('calculator')
+  
+  // Only check localStorage on client side to avoid hydration mismatch
+  useEffect(() => {
+    setIsClient(true)
+    const hasVisited = localStorage.getItem('trading-buddy-has-visited')
+    if (hasVisited) {
+      setShowLanding(false)
+    }
+  }, [])
   const [mode, setMode] = useState<CalculationMode>('forward')
   
   // Forward calculation inputs
@@ -206,6 +218,19 @@ export default function Home() {
   }
 
   // Total heat is already calculated in state above
+
+  const handleGetStarted = () => {
+    setShowLanding(false)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('trading-buddy-has-visited', 'true')
+    }
+  }
+
+  // During SSR, show the main app (default state)
+  // After client hydration, check localStorage and show landing if needed
+  if (isClient && showLanding) {
+    return <LandingPage onGetStarted={handleGetStarted} />
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">

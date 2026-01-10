@@ -1,8 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import { Calculator, BarChart3, BookOpen, Menu, X, AlertTriangle, Settings, LayoutDashboard } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
+import { Calculator, BarChart3, BookOpen, Menu, X, AlertTriangle, Settings, LayoutDashboard, LogIn } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { UserMenu } from './UserMenu'
+import { AuthModal } from './AuthModal'
 
 export type ViewType = 'calculator' | 'dashboard' | 'trading-dashboard' | 'journal' | 'settings'
 
@@ -37,19 +40,23 @@ const navigationItems: Array<{
     label: 'Journal',
     icon: BookOpen,
   },
-  {
-    id: 'settings',
-    label: 'Settings',
-    icon: Settings,
-  },
 ]
 
 const MAX_HEAT_THRESHOLD = 6
 
 export function Navigation({ currentView, onViewChange, totalHeat }: NavigationProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const { data: session, status } = useSession()
+  const [isMounted, setIsMounted] = useState(false)
+  
+  // Prevent hydration mismatch by only checking session after mount
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
   
   const showHeatWarning = totalHeat !== null && totalHeat !== undefined && totalHeat > MAX_HEAT_THRESHOLD
+  const isAuthenticated = isMounted && !!session
 
   return (
     <>
@@ -111,7 +118,7 @@ export function Navigation({ currentView, onViewChange, totalHeat }: NavigationP
       </div>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex fixed left-0 top-0 h-full w-64 flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-40">
+      <aside className="hidden lg:flex fixed left-0 top-0 h-full w-64 flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-40 overflow-visible">
         <div className="p-6 border-b border-slate-200 dark:border-slate-800">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Trading Buddy
@@ -156,12 +163,35 @@ export function Navigation({ currentView, onViewChange, totalHeat }: NavigationP
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-200 dark:border-slate-800">
-          <p className="text-xs text-slate-500 dark:text-slate-400 text-center">
+        <div className="p-4 border-t border-slate-200 dark:border-slate-800 space-y-2 relative overflow-visible">
+          {isMounted ? (
+            isAuthenticated ? (
+              <UserMenu onNavigateToSettings={() => onViewChange('settings')} />
+            ) : (
+              <button
+                onClick={() => setShowAuthModal(true)}
+                className="w-full flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transition-all"
+              >
+                <LogIn className="h-4 w-4" />
+                <span className="text-sm font-medium">Sign In</span>
+              </button>
+            )
+          ) : (
+            // Placeholder during SSR to prevent hydration mismatch
+            <div className="w-full h-10" />
+          )}
+          <p className="text-xs text-slate-500 dark:text-slate-400 text-center mt-2">
             Risk Management Tool
           </p>
         </div>
       </aside>
+
+      {/* Auth Modal */}
+      <AuthModal 
+        open={showAuthModal} 
+        onOpenChange={setShowAuthModal}
+        defaultTab="login"
+      />
     </>
   )
 }

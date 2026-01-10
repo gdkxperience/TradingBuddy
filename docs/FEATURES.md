@@ -85,6 +85,126 @@ Example:
 - **Warning Threshold**: R-Multiple < 1:2 triggers red warning
 - **Display Format**: Shows as "1:R" ratio (e.g., "1:2.5" means risking €1 to make €2.50)
 
+## Scenario Sandbox (The What-If Engine)
+
+### Overview
+The Scenario Sandbox is a powerful risk visualization tool that appears below the calculator results. It allows traders to "drag" the price up or down using an interactive slider to see the live P&L impact before executing a trade. This feature makes risk "real" and visceral, helping traders understand the consequences of price movements before clicking buy.
+
+### Purpose
+**The Edge**: Seeing the red number visceralizes the loss. It makes risk tangible in your brain before you commit capital, preventing emotional decision-making during live trading.
+
+### Features
+
+#### A. Interactive Price Slider
+- **Location**: Appears below calculation results when a valid position size is calculated
+- **Range**: Automatically calculates ±20% from entry price (or uses stop loss as minimum)
+- **Real-time Updates**: P&L updates instantly as you drag the slider
+- **Visual Feedback**: Slider color changes based on profit/loss (green for profit, red for loss)
+
+#### B. Live P&L Calculation
+- **Formula**: 
+  - Long: `P&L = (Scenario Price - Entry Price) × Position Size`
+  - Short: `P&L = (Entry Price - Scenario Price) × Position Size`
+- **Display**: Shows formatted P&L with proper sign (+$200 or -$200)
+- **Color Coding**: 
+  - Green background for profits
+  - Red background for losses
+  - Gray background at entry price
+
+#### C. Visceral Risk Messages
+The sandbox displays context-aware messages that make risk tangible:
+
+**Loss Scenarios:**
+- Long: "If stock drops to $40, you lose -$200."
+- Short: "If stock rises to $50, you lose -$150."
+
+**Profit Scenarios:**
+- Long: "If stock gaps to $50, you make +$400."
+- Short: "If stock drops to $40, you make +$300."
+
+**At Entry:**
+- "At entry price: $45.00. No P&L yet."
+
+#### D. Visual Indicators
+- **Icons**: 
+  - 📈 TrendingUp for profits
+  - 📉 TrendingDown for losses
+  - ⚠️ AlertTriangle for entry/neutral
+- **Percentage Change**: Shows price change percentage with color coding
+- **Position Size Display**: Shows number of shares being simulated
+
+#### E. Quick Price Buttons
+Quick navigation buttons for common scenarios:
+- **Entry**: Reset to entry price
+- **Stop Loss**: Jump to stop loss price (if set)
+- **-5%**: Simulate 5% drop
+- **+5%**: Simulate 5% gain
+
+#### F. Risk Warnings
+- **Large Loss Alert**: When loss exceeds 10% of trade value, displays warning
+- **Percentage Impact**: Shows loss as percentage of trade value
+- **Visual Emphasis**: Red background and border for significant losses
+
+### User Experience Flow
+
+1. **User calculates position size** using Forward or Reverse mode
+2. **Scenario Sandbox appears** below results (only when valid position size exists)
+3. **User drags slider** to simulate different price scenarios
+4. **P&L updates in real-time** with color-coded feedback
+5. **Visceral messages** reinforce the emotional impact of gains/losses
+6. **User makes informed decision** before saving to journal
+
+### Technical Details
+
+**Display Conditions:**
+- Only shows when `positionSize > 0` and `entryPrice > 0`
+- Automatically hides when calculation is invalid
+- Resets slider to entry price when entry price changes
+
+**Price Range Calculation:**
+- Minimum: `Math.min(entryPrice × 0.8, stopLossPrice × 0.9)` or `entryPrice × 0.8`
+- Maximum: `entryPrice × 1.2`
+- Step: 0.01 (1 cent precision)
+
+**P&L Calculation:**
+- Uses calculated `maxShares` from position size calculation
+- Accounts for trade direction (long vs short)
+- Formats with currency symbol and 2 decimal places
+
+### Business Rules
+
+- **Visibility**: Only displays when valid calculation exists
+- **Auto-reset**: Slider resets to entry price when entry price changes
+- **Range Limits**: Prevents slider from going beyond ±20% of entry (or stop loss bounds)
+- **Real-time Updates**: No delay in P&L calculation as slider moves
+- **Color Psychology**: Red for losses (danger), green for profits (success)
+
+### Example Scenarios
+
+**Scenario 1: Long Position**
+- Entry: $45.00
+- Position Size: 100 shares
+- User drags to $40.00
+- **Result**: "If stock drops to $40.00, you lose -$500.00" (red background)
+
+**Scenario 2: Short Position**
+- Entry: $50.00
+- Position Size: 50 shares
+- User drags to $45.00
+- **Result**: "If stock drops to $45.00, you make +$250.00" (green background)
+
+**Scenario 3: At Entry**
+- Entry: $45.00
+- Slider at entry price
+- **Result**: "At entry price: $45.00. No P&L yet." (gray background)
+
+### Integration Points
+
+- **Forward Calculation Mode**: Shows after forward calculation results
+- **Reverse Calculation Mode**: Shows after reverse calculation results
+- **Requires**: Entry price, position size (maxShares), trade direction
+- **Optional**: Stop loss price (enhances range calculation)
+
 ## Account Heat Dashboard (Portfolio Risk)
 
 ### Overview

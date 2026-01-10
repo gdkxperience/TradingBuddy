@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 model Calculation {
@@ -48,13 +48,89 @@ model Calculation {
 }
 
 model User {
-  id           String        @id @default(cuid())
-  email        String        @unique
-  name         String?
-  calculations Calculation[]
-  journalEntries JournalEntry[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id                String        @id @default(cuid())
+  email             String        @unique
+  emailVerified     DateTime?
+  name              String?
+  password          String?       // Hashed password (null for OAuth users)
+  image             String?       // Profile picture URL
+  
+  // Relations
+  accounts          Account[]
+  sessions          Session[]
+  calculations      Calculation[]
+  journalEntries    JournalEntry[]
+  settings          UserSettings?
+  
+  // Metadata
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  
+  @@index([email])
+}
+
+model Account {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type              String   // "credentials" | "oauth"
+  provider          String   // "credentials" | "google" | "github"
+  providerAccountId String   // OAuth provider user ID
+  
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id                String   @id @default(cuid())
+  sessionToken      String   @unique
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  expires           DateTime
+  
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier        String
+  token             String   @unique
+  expires           DateTime
+  
+  @@unique([identifier, token])
+}
+
+model UserSettings {
+  id                        String   @id @default(cuid())
+  userId                    String   @unique
+  user                      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // User preferences
+  accountSize               Float?
+  defaultRiskPercentage    Float?   @default(5.0)
+  defaultCashUsagePercentage Float? @default(50.0)
+  checklistGatekeeperEnabled Boolean @default(true)
+  
+  // Dashboard preferences
+  defaultView              String?  @default("calculator") // "calculator" | "dashboard" | "trading-dashboard"
+  
+  // Notification preferences (future)
+  emailNotifications       Boolean  @default(false)
+  
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
 }
 
 model JournalEntry {

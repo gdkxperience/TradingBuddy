@@ -1,32 +1,40 @@
 import { PrismaClient } from '@prisma/client'
-import { PrismaLibSql } from '@prisma/adapter-libsql'
-import path from 'path'
+import { PrismaPg } from '@prisma/adapter-pg'
+import { Pool } from 'pg'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-function createPrismaClient() {
-  // Get database path - default to prisma/dev.db in project root
-  let dbPath = './prisma/dev.db'
+function createPrismaClient(): PrismaClient {
+  const isProduction = process.env.NODE_ENV === 'production'
+  const databaseUrl = process.env.DATABASE_URL
+  const directUrl = process.env.DIRECT_DATABASE_URL
   
-  const envUrl = process.env.DATABASE_URL
-  if (envUrl && envUrl.startsWith('file:')) {
-    dbPath = envUrl.replace('file:', '')
-  } else if (envUrl) {
-    dbPath = envUrl
+  // Check if we're using Prisma Accelerate (production)
+  const isAccelerateUrl = databaseUrl?.startsWith('prisma+postgres://')
+  
+  if (isAccelerateUrl && databaseUrl) {
+    // Production: Use Prisma Accelerate for connection pooling and caching
+    return new PrismaClient({
+      accelerateUrl: databaseUrl,
+    })
   }
   
-  // Resolve to absolute path
-  const absoluteDbPath = path.resolve(process.cwd(), dbPath)
+  // Development: Use PostgreSQL adapter with pg pool
+  const connectionString = directUrl || databaseUrl
   
-  // Create the Prisma adapter with libSQL config for local SQLite file
-  const adapter = new PrismaLibSql({
-    url: `file:${absoluteDbPath}`,
+  if (!connectionString) {
+    throw new Error('DATABASE_URL or DIRECT_DATABASE_URL environment variable is required')
+  }
+  
+  const pool = new Pool({ connectionString })
+  const adapter = new PrismaPg(pool)
+  
+  return new PrismaClient({
+    adapter,
+    log: isProduction ? ['error'] : ['query', 'error', 'warn'],
   })
-  
-  // Create PrismaClient with the adapter (Prisma 7 style)
-  return new PrismaClient({ adapter })
 }
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient()

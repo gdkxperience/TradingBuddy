@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getCurrentUserId } from '@/lib/auth-helpers'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,12 +12,23 @@ async function getPrisma() {
 // GET - Fetch all journal entries
 export async function GET(request: NextRequest) {
   try {
+    const userId = await getCurrentUserId()
+    
+    // For now, allow anonymous access but filter by userId if authenticated
+    // In Phase 2, we can make auth required
     const prisma = await getPrisma()
     const searchParams = request.nextUrl.searchParams
     const status = searchParams.get('status') // 'open' | 'closed' | null for all
     const ticker = searchParams.get('ticker')
 
     const where: any = {}
+    if (userId) {
+      where.userId = userId
+    } else {
+      // Anonymous users see only their own data (userId is null)
+      where.userId = null
+    }
+    
     if (status && (status === 'open' || status === 'closed')) {
       where.status = status
     }
@@ -62,6 +74,7 @@ export async function GET(request: NextRequest) {
 // POST - Create a new journal entry
 export async function POST(request: NextRequest) {
   try {
+    const userId = await getCurrentUserId()
     const prisma = await getPrisma()
     const body = await request.json()
     const {
@@ -77,7 +90,6 @@ export async function POST(request: NextRequest) {
       rMultiple,
       targetPrice,
       potentialProfit,
-      userId,
     } = body
 
     if (!ticker || !setupType || !entryPrice || !positionSize || !direction) {
@@ -101,7 +113,7 @@ export async function POST(request: NextRequest) {
         rMultiple: rMultiple ? parseFloat(rMultiple) : null,
         targetPrice: targetPrice ? parseFloat(targetPrice) : null,
         potentialProfit: potentialProfit ? parseFloat(potentialProfit) : null,
-        userId: userId || null,
+        userId: userId || null, // Use authenticated userId or null for anonymous
       },
     })
 

@@ -135,49 +135,55 @@ export function TradePreviewModal({ open, onOpenChange, entry }: TradePreviewMod
           {/* Risk & Reward */}
           <div>
             <h3 className="text-lg font-semibold mb-3">Risk & Reward Analysis</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 border-2 border-red-200 dark:border-red-900 rounded-lg bg-red-50 dark:bg-red-950">
-                <div className="flex items-center gap-2 text-sm text-red-700 dark:text-red-300 mb-1">
-                  <AlertTriangle className="h-4 w-4" />
-                  Risk Amount
+            <div className="space-y-4">
+              {/* Risk Amount and Potential Profit in one row */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 border-2 border-red-200 dark:border-red-900 rounded-lg bg-red-50 dark:bg-red-950">
+                  <div className="flex items-center gap-2 text-sm text-red-700 dark:text-red-300 mb-1">
+                    <AlertTriangle className="h-4 w-4" />
+                    Risk Amount
+                  </div>
+                  <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+                    {entry.riskAmount ? `-€${entry.riskAmount.toFixed(2)}` : 'Unknown'}
+                  </p>
                 </div>
-                <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                  {entry.riskAmount ? `-€${entry.riskAmount.toFixed(2)}` : 'Unknown'}
-                </p>
+
+                {entry.potentialProfit && (
+                  <div className="p-4 border-2 border-green-200 dark:border-green-900 rounded-lg bg-green-50 dark:bg-green-950">
+                    <div className="text-sm text-green-700 dark:text-green-300 mb-1">Potential Profit</div>
+                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                      +€{entry.potentialProfit.toFixed(2)}
+                    </p>
+                  </div>
+                )}
               </div>
 
-              {entry.tradeValue && (
-                <div className="p-4 border rounded-lg">
-                  <div className="text-sm text-muted-foreground mb-1">Trade Value</div>
-                  <p className="text-2xl font-bold">€{entry.tradeValue.toFixed(2)}</p>
-                </div>
-              )}
+              {/* Trade Value and R/R Ratio in second row */}
+              <div className="grid grid-cols-2 gap-4">
+                {entry.tradeValue && (
+                  <div className="p-4 border rounded-lg">
+                    <div className="text-sm text-muted-foreground mb-1">Trade Value</div>
+                    <p className="text-2xl font-bold">€{entry.tradeValue.toFixed(2)}</p>
+                  </div>
+                )}
 
-              {entry.rMultiple && (
-                <div className="p-4 border rounded-lg">
-                  <div className="text-sm text-muted-foreground mb-1">Risk:Reward Ratio</div>
-                  <p className={cn(
-                    "text-2xl font-bold",
-                    entry.rMultiple >= 2 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
-                  )}>
-                    1:{entry.rMultiple.toFixed(2)}
-                  </p>
-                  {entry.rMultiple < 2 && (
-                    <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-                      Below recommended 1:2 ratio
+                {entry.rMultiple && (
+                  <div className="p-4 border rounded-lg">
+                    <div className="text-sm text-muted-foreground mb-1">Risk:Reward Ratio</div>
+                    <p className={cn(
+                      "text-2xl font-bold",
+                      entry.rMultiple >= 2 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                    )}>
+                      1:{entry.rMultiple.toFixed(2)}
                     </p>
-                  )}
-                </div>
-              )}
-
-              {entry.potentialProfit && (
-                <div className="p-4 border-2 border-green-200 dark:border-green-900 rounded-lg bg-green-50 dark:bg-green-950">
-                  <div className="text-sm text-green-700 dark:text-green-300 mb-1">Potential Profit</div>
-                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                    +€{entry.potentialProfit.toFixed(2)}
-                  </p>
-                </div>
-              )}
+                    {entry.rMultiple < 2 && (
+                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                        Below recommended 1:2 ratio
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
